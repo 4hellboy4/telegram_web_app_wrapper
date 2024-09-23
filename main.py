@@ -14,10 +14,8 @@ async def start_command(message: types.Message):
     user_id = message.from_user.id
 
     if user_id in config.admins:
-        # Ответ для админа
         await message.answer("Привет, ты находишься на странице админа", reply_markup=admin_kb)
     else:
-        # Ответ для обычного пользователя
         await message.answer("Привет, ты можешь запустить приложение, нажав на кнопку снизу", reply_markup=user_kb)
 
 
