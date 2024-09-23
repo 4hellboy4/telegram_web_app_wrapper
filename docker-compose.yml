@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  bot:
+    container_name: telegram_web_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+    volumes:
+      - .:/telegram_web_app
+    restart: unless-stopped

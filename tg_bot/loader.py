@@ -7,5 +7,6 @@ from tg_bot.user.handlers import user
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+# добавляем все необходимые роуты
 dp.include_router(admin)
 dp.include_router(user)
