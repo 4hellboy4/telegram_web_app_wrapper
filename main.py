@@ -1,7 +1,8 @@
 import asyncio
 
 from aiogram import types
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.utils.deep_linking import create_start_link
+from aiogram.utils.payload import decode_payload
 
 from tg_bot import config
 from tg_bot.loader import dp, bot
@@ -18,17 +19,33 @@ async def set_web_app_button():
         )
     )
 
+
+# Генерация deeplink с параметром startapp
+async def generate_deeplink(user_id):
+    # Генерация ссылки с переданным user_id в качестве параметра
+    link = await create_start_link(bot, f'startapp={user_id}', encode=True)
+    return link
+
+
 # Команда /start с проверкой ID пользователя является он админом или юзером
 @dp.message(Command(commands=['start']))
 async def start_command(message: types.Message):
     await set_web_app_button() # запуск кнопки
-    user_id = message.from_user.id
 
+    # Извлекаем параметр startapp, если он передан
+    start_param = message.text.split('startapp=')[-1] if 'startapp=' in message.text else None
+
+    user_id = message.from_user.id
     # проверка на админа
     if user_id in config.admins:
         await message.answer("Привет, ты находишься на странице админа", reply_markup=admin_kb)
     else:
-        await message.answer("Привет, скорее запускай игру, нажав кнопку ниже!", reply_markup=user_kb)
+        if start_param:
+            # Декодируем параметр (если он закодирован base64)
+            referrer_id = decode_payload(start_param)
+            await message.answer(f"Вас пригласил пользователь с ID {referrer_id}", reply_markup=user_kb)
+        else:
+            await message.answer("Привет! Запускайте игру, нажав кнопку ниже!", reply_markup=user_kb)
 
 
 async def main():
